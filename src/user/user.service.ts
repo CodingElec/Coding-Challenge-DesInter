@@ -2,14 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserResponseDTO } from './dto/create-user-response.dto';
-import {v4 as uuidv4} from 'uuid';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto):CreateUserResponseDTO {
-    const response = new CreateUserResponseDTO()
-    response.id = uuidv4() as string
-    return response;
+  constructor(@InjectModel(User.name) private readonly catModel: Model<User>) {}
+  
+  async create(createUserDto: CreateUserDto):Promise<CreateUserResponseDTO> {
+    
+    const createdCat = await this.catModel.create(createUserDto);
+    return createdCat;
+   
   }
 
   findAll() {
