@@ -25,7 +25,7 @@ export class UserService {
 
     const user = await this.UserModel
       .findById(id)
-      .populate('uniqueDigit')  // This will populate the uniqueDigit field with UniqueId documents
+      .populate('uniqueDigit', '-_id')  // This will populate the uniqueDigit field with UniqueId documents
       .exec();
 
     if (!user) {
