@@ -1,7 +1,9 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { IUniqueDigit } from './UniqueDigit.schema';
+import { IUniqueDigit } from '../../UniqueDigit/schemas/UniqueDigit.schema';
+
+import { IsOptional } from 'class-validator';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -14,13 +16,14 @@ export class User {
   @Prop()
   email: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'UniqueDigit' })
-  uniqueDigit: IUniqueDigit;
+  @Prop({ type: [Types.ObjectId], ref: 'UniqueDigit' })
+  @IsOptional()
+  uniqueDigit: Types.ObjectId[];
   
 }
 export interface IUser extends Document {
     name: string;
     email: string;
-    uniqueDigit: IUniqueDigit; // This will reference a UniqueDigit document
+    result: IUniqueDigit; // This will reference a UniqueDigit document
   }
 export const UserSchema = SchemaFactory.createForClass(User);

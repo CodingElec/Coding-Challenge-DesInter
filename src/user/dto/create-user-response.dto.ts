@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateUserResponseDTO {
   @ApiProperty({
@@ -18,4 +19,6 @@ export class CreateUserResponseDTO {
     example: 'johndoe@example.com',
   })
   email: string;
+
+  
 }

@@ -1,8 +1,12 @@
-export class UniqueDigit {
+export class CalcUniqueDigit {
      
-   private result: number
+    result: number
+    n: number;
+    k: number;
 
    constructor(n:number, k: number) {
+    this.n=n;
+    this.k=k
     this.result = this.calculateNewUniqueDigit(n,k)
    }      
 
