@@ -1,45 +1,154 @@
 import { Test, TestingModule } from '@nestjs/testing';
-
-import { v4 as uuidv4 } from 'uuid';  // Import uuidv4 for validation purposes
-import { CreateUserResponseDTO } from './dto/create-user-response.dto';
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { getModelToken } from '@nestjs/mongoose';
+import { User } from './schemas/user.schema';
+import { NotFoundException } from '@nestjs/common';
+import { Model, Types } from 'mongoose';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
-
-jest.mock('uuid', () => ({
-  v4: jest.fn().mockReturnValue('550e8400-e29b-41d4-a716-446655440000'),  // Mocking uuidv4 to return a consistent value
-}));
-
-describe('UserService', () => {
+describe('UserController', () => {
+  let controller: UserController;
   let service: UserService;
+
+  const mockUserModel = {};  // Add any methods if needed for the tests
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService],
+      controllers: [UserController],
+      providers: [
+        UserService,
+        {
+          provide: getModelToken(User.name),
+          useValue: mockUserModel,
+        },
+      ],
     }).compile();
 
+    controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(controller).toBeDefined();
+  });
+});
+
+describe('UserService', () => {
+  let service: UserService;
+  let model: Model<User>;
+
+  const mockUserModel = {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByIdAndDelete: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        {
+          provide: getModelToken(User.name),
+          useValue: mockUserModel,
+        },
+      ],
+    }).compile();
+
+    service = module.get<UserService>(UserService);
+    model = module.get<Model<User>>(getModelToken(User.name));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('create', () => {
-    it('should return a CreateUserResponseDTO with a valid UUID', () => {
-      const createUserDto = {} as CreateUserDto;  // Assuming the DTO is not used in this case
+    it('should create a user and return the created user', async () => {
+      const createUserDto: CreateUserDto = {
+        name: 'John', email: 'john@example.com',
+        uniqueDigit: []
+      };
+      const createdUser = { ...createUserDto, _id: '123' };
       
-      // Call the service method
-      const result = service.create(createUserDto);
-      
-      // Check if the result is an instance of CreateUserResponseDTO
-      expect(result).toBeInstanceOf(CreateUserResponseDTO);
-      
-      // Check if the ID is a valid UUID (mocked value)
-      expect(result.id).toBe('550e8400-e29b-41d4-a716-446655440000');
-      
-      // If you were not mocking the UUID, you could do this:
-      // expect(result.id).toMatch(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
+      mockUserModel.create.mockResolvedValue(createdUser);
+
+      const result = await service.create(createUserDto);
+
+      expect(result).toEqual(createdUser);
+      expect(mockUserModel.create).toHaveBeenCalledWith(createUserDto);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a user by ID', async () => {
+      const id = '672fdfb16f5bdabc99684ea9';
+      const user = { _id: id, name: 'John', email: 'john@example.com', uniqueDigit: [] };
+  
+      const findByIdMock = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue(user),
+      });
+  
+      mockUserModel.findById = findByIdMock;
+  
+      const result = await service.findOne(id);
+       
+      expect(result).toEqual(user);
+      expect(mockUserModel.findById).toHaveBeenCalledWith(id);
+      expect(findByIdMock).toHaveBeenCalledTimes(1);
+      expect(findByIdMock().populate).toHaveBeenCalledWith('uniqueDigit', '-_id');
+      expect(findByIdMock().exec).toHaveBeenCalledTimes(1);
+    });
+  });
+
+
+
+
+  describe('update', () => {
+    it('should update the user', async () => {
+      const id = '123';
+      const updateUserDto: UpdateUserDto = { name: 'Updated Name', email: 'updated@example.com' };
+      const existingUser = { _id: id, name: 'Old Name', email: 'old@example.com', save: jest.fn() };
+
+      existingUser.save.mockResolvedValue({ ...existingUser, ...updateUserDto });
+      mockUserModel.findById.mockResolvedValue(existingUser);
+
+      const result = await service.update(id, updateUserDto);
+
+      expect(result).toEqual({ ...existingUser, ...updateUserDto });
+      expect(existingUser.save).toHaveBeenCalled();
+    });
+
+    it('should throw an error if user is not found', async () => {
+      const id = '123';
+      const updateUserDto: UpdateUserDto = { name: 'Updated Name' };
+
+      mockUserModel.findById.mockResolvedValue(null);
+
+      await expect(service.update(id, updateUserDto)).rejects.toThrowError(`User with id ${id} not found`);
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove a user', async () => {
+      const id = '123';
+      const user = { _id: id, name: 'John', email: 'john@example.com' };
+      mockUserModel.findByIdAndDelete.mockResolvedValue(user);
+
+      const result = await service.remove(id);
+
+      expect(result).toEqual(`User #${id} deleted`);
+      expect(mockUserModel.findByIdAndDelete).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw a NotFoundException if user is not found', async () => {
+      const id = '123';
+      mockUserModel.findByIdAndDelete.mockResolvedValue(null);
+
+      await expect(service.remove(id)).rejects.toThrow(NotFoundException);
     });
   });
 });

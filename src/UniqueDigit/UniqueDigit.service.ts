@@ -15,6 +15,9 @@ import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class UniqueDigitService {
+  static requestUniqueDigit(n: any, k: any): any {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectModel(UniqueDigit.name) private uniqueDigitModel: Model<UniqueDigit>,
     

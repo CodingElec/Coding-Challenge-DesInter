@@ -18,20 +18,17 @@ export class UniqueDigitController {
 
   @Post('create')
   async createUniqueID(@Body() body: { n: number, k: number }) {
+    
     const { n, k } = body;
-
-    // Use the CalcUniqueDigit class to calculate the result
-    const calc = new CalcUniqueDigit(n, k);
-    const result = calc.getResult();
-
-    // Prepare the data to be passed to the DTO
-    const createUniqueDigitData: CreateUniqueDigitDto = {
+    const uniqueDigit = this.uniqueDigitService.requestUniqueDigit(n, k);
+    const result = uniqueDigit.getResult();
+      // Prepare the data to be passed to the DTO
+      const createUniqueDigitData: CreateUniqueDigitDto = {
         result,  // The result from the CalcUniqueDigit calculation
         n,       // The n parameter
         k        // The k parameter
       }    
 
-    // Call the service to create the unique digit with the DTO
     return this.uniqueDigitService.createUniqueDigit(createUniqueDigitData);
   }
 }
