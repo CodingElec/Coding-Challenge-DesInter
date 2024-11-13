@@ -35,7 +35,7 @@ The single digit is calculated from the sum of all digits, recursively, until th
 
 Build a CRUD system to manage user data, including name, email, and a list of calculated single digits with parameters and results.
 Each user shall have an email, name and list of results calculated for them.
-Each object form the result list shall contain the result and the calculation parameters.
+Each object from the result list shall contain the result and the calculation parameters.
 
 -> Memory Cache
 
@@ -60,9 +60,13 @@ Create endpoints for:
 ```bash
 $ npm install
 ```
+For the project to run successfully,
+
 This project uses MongoDB; you must create a .env file with MONGODB_URI='INSERT your connection URI here.'
 
-For the project to run successfully, the setup will create two collections, users and unique digits, on your DB.
+The setup will create two collections, users and unique digits, on your DB.
+
+You can check the API documentation in http://localhost:3000/api#/ (WIP)
 
 ## Compile and run the project
 
@@ -88,5 +92,7 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
+## Possible improvements.
+I tightly coupled this with Mongoose because I did not use a repository for the DB connections; instead, I did the operations at the service directly.
+I know, I know, but it was enough for my goals with this one.
 
