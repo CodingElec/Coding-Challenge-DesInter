@@ -3,20 +3,18 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserResponseDTO } from './dto/create-user-response.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types} from 'mongoose';
 import { User } from './schemas/user.schema';
 import { CalculationDto } from './dto/calculate-user.dto';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
+import { UniqueDigitService } from 'src/UniqueDigit/UniqueDigit.service';
 
 
 @Injectable()
 export class UserService {
   [x: string]: any;
   constructor(
-    @InjectModel(User.name) private readonly UserModel: Model<User>,
-    private readonly httpService: HttpService, 
-  
+    @InjectModel(User.name) private readonly UserModel: Model<User>, 
+    private readonly uniqueDigitService: UniqueDigitService,
   ) {}
   
   async create(createUserDto: CreateUserDto):Promise<CreateUserResponseDTO> {
@@ -39,15 +37,11 @@ export class UserService {
 
     const { n, k } = calculationParams;   
     
-
-    const { data } = await lastValueFrom(
-      this.httpService.post('http://localhost:3000/uniqueDigit/create', { n, k })
-    );
-    
+    const {_id} = await this.uniqueDigitService.createUniqueDigit(n, k);    
 
     // Assuming the response has an 'id' field
     
-    const uniqueDigitId = new Types.ObjectId(data.id);
+    const uniqueDigitId = new Types.ObjectId(`${_id}`);
 
     // Push only the uniqueDigitId to the user's uniqueDigit array
     user.uniqueDigit.push(uniqueDigitId);

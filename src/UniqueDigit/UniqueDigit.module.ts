@@ -12,5 +12,6 @@ import { UniqueDigitSchema } from './schemas/UniqueDigit.schema';
   ],
   controllers: [UniqueDigitController],
   providers: [UniqueDigitService],
+  exports: [UniqueDigitService],
 })
 export class UniqueDigitModule {}
