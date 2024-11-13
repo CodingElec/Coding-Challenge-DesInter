@@ -60,10 +60,15 @@ Create endpoints for:
 ```bash
 $ npm install
 ```
+This project uses MongoDB; you must create a .env file with MONGODB_URI='INSERT your connection URI here.'
+
+For the project to run successfully, the setup will create two collections, users and unique digits, on your DB.
 
 ## Compile and run the project
 
 ```bash
+Create a .env file,
+
 # development
 $ npm run start
 
