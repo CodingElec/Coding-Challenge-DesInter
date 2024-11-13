@@ -24,26 +24,36 @@
 
 ## Description
 
-Coding Challange for a Bank.
+Coding Challenge for a Bank.
 
-##Single Digit Calculation
+-> Single Digit Calculation
 
 Create a function, single_digit, that calculates a "single digit" for an integer n, repeated k times. Use the digit-summing method until a single digit is obtained. Inputs: a string n (large integer), integer k (repetition count).
-the single digit is calculated from the sum of all digits, in a recursive way, until the number is 1 digit long.
+The single digit is calculated from the sum of all digits, recursively, until the number is one digit long.
 
-
-User Management (CRUD)
+-> User Management (CRUD)
 
 Build a CRUD system to manage user data, including name, email, and a list of calculated single digits with parameters and results.
-Memory Cache
+Each user shall have an email, name and list of results calculated for them.
+Each object form the result list shall contain the result and the calculation parameters.
+
+-> Memory Cache
 
 Implement a memory cache to store the last 10 unique single-digit calculations, avoiding recalculations for cached values.
-Encryption
+You CANNOT use market frameworks for Cache.
 
-Encrypt user information (name, email) with asymmetric encryption, using unique public/private keys per user.
-API Endpoints
+-> Encryption
 
-Create endpoints for user CRUD, single-digit calculations, retrieving user calculations, and submitting a user’s public key.
+Encrypt user information (name, email) with asymmetric encryption size 2048, using unique public/private keys per user.
+
+-> API 
+
+Create endpoints for: 
+ - user CRUD single-digit calculations
+ - retrieving user calculations
+ - an endpoint to calculate a unique digit.
+ - an endpoint to calculate a unique digit and connect it to a user.
+ - an endpoint to submit a user’s public key. (String containing the key).
 
 ## Project setup
 
