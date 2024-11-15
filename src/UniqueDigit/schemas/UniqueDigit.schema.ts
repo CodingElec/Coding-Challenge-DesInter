@@ -18,11 +18,4 @@ export class UniqueDigit {
    
 }
 
-export interface IUniqueDigit extends Document {
-  result: number;  
-  n: number;
-  k:number 
-
-}
-
 export const UniqueDigitSchema = SchemaFactory.createForClass(UniqueDigit);

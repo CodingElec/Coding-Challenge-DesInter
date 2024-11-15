@@ -1,7 +1,6 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { UniqueDigitService } from './UniqueDigit.service';
 import { CalcUniqueDigit } from './CalcUniqueDigit';
-import { CreateUniqueDigitDto } from './dto/create.uniqueDigit.dto';
 
 
 

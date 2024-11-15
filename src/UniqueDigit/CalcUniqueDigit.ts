@@ -1,13 +1,13 @@
 export class CalcUniqueDigit {
      
     result: number
-    n: number;
+    numSequence: string;
     k: number;
 
-   constructor(n:number, k: number) {
-    this.n=n;
+   constructor(numSequence:string, k: number) {
+    this.numSequence=numSequence;
     this.k=k
-    this.result = this.calculateNewUniqueDigit(n,k)
+    this.result = this.calculateNewUniqueDigit(numSequence)
    }      
 
    public getResult() {
@@ -15,12 +15,13 @@ export class CalcUniqueDigit {
     }
    
     
-    private calculateNewUniqueDigit (n:number, k: number):number {
-        const numString = n.toString().repeat(k)
+    private calculateNewUniqueDigit (numSequence: string):number {
+        
 
-        let uniqueDigit = this.sumOfDigits(numString);
+        let uniqueDigit = this.sumOfDigits(numSequence);
 
         while(uniqueDigit >9) {
+            
             uniqueDigit = this.sumOfDigits(uniqueDigit.toString())
         }
 

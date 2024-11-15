@@ -3,6 +3,7 @@ import { UniqueDigitController } from './UniqueDigit.controller';
 import { UniqueDigitService } from './UniqueDigit.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UniqueDigitSchema } from './schemas/UniqueDigit.schema';
+import { CacheService } from './cache/cache.service';
 
 
 
@@ -11,7 +12,7 @@ import { UniqueDigitSchema } from './schemas/UniqueDigit.schema';
     MongooseModule.forFeature([{ name: 'UniqueDigit', schema: UniqueDigitSchema }]),
   ],
   controllers: [UniqueDigitController],
-  providers: [UniqueDigitService],
+  providers: [UniqueDigitService, CacheService],
   exports: [UniqueDigitService],
 })
 export class UniqueDigitModule {}
