@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { get, Model, Types } from 'mongoose';
+import { UniqueDigitService } from '../UniqueDigit/UniqueDigit.service';
+import { CalculationDto } from './dto/calculate-user.dto';
+import { CreateUserResponseDTO } from './dto/create-user-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserResponseDTO } from './dto/create-user-response.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types} from 'mongoose';
 import { User } from './schemas/user.schema';
-import { CalculationDto } from './dto/calculate-user.dto';
-import { UniqueDigitService } from 'src/UniqueDigit/UniqueDigit.service';
+import * as crypto from 'crypto';
+import * as forge from 'node-forge';
 
 
 @Injectable()
@@ -18,7 +20,6 @@ export class UserService {
   ) {}
   
   async create(createUserDto: CreateUserDto):Promise<CreateUserResponseDTO> {
-    
     const  createdUser = await this.UserModel.create(createUserDto);
     return createdUser;
    
@@ -38,30 +39,39 @@ export class UserService {
     const { n, k } = calculationParams;   
     
     const {_id} = await this.uniqueDigitService.createUniqueDigit(n, k);    
-
-    // Assuming the response has an 'id' field
-    
+       
     const uniqueDigitId = new Types.ObjectId(`${_id}`);
-
-    // Push only the uniqueDigitId to the user's uniqueDigit array
+   
     user.uniqueDigit.push(uniqueDigitId);
-
-    // Save the updated user
+   
     return user.save();   
    
   }
 
   
-  async findOne(id: string):Promise<User> {
+  async findOne(id: string, privateKey?:string):Promise<User> {
 
     const user = await this.UserModel
       .findById(id)
       .populate('uniqueDigit', '-_id')  // This will populate the uniqueDigit field with UniqueId documents
+      .select('-publickey -isEncrypted')
       .exec();
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
+
+    if (user.isEncrypted && !privateKey) {
+
+      throw new NotFoundException(`User with ID ${id} is encrypted, private key missing`);
+
+    }
+    if (user.isEncrypted && privateKey) {
+      const privateKeyFromPem = forge.pki.privateKeyFromPem(privateKey);
+      user.name = privateKeyFromPem.decrypt(user.name);
+      user.email = privateKeyFromPem.decrypt(user.email);
+    }
+        
     return user;
   }
 
@@ -122,5 +132,30 @@ export class UserService {
     } 
     return `User #${id} deleted`;
   }
+
+  async encryptUser (id: string) {
+    const user = await this.UserModel.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    if(user.isEncrypted) {
+      throw new Error('User is already encrypted');
+    }
+    const key = forge.pki.rsa.generateKeyPair({ bits: 2048 });
+    
+
+    user.publickey = forge.pki.publicKeyToPem(key.publicKey);
+    user.name = forge.util.encode64(key.publicKey.encrypt(user.name));
+    user.email = forge.util.encode64(key.publicKey.encrypt(user.email));
+    user.isEncrypted = true;
+    //await user.save();
+    return user;
+  }
+
+  async decryptUser (id: string) {}
+
+  
 }
+
+
 

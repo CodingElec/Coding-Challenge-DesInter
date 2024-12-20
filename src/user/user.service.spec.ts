@@ -4,24 +4,31 @@ import { UserService } from './user.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import { NotFoundException } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UniqueDigitService } from '../UniqueDigit/UniqueDigit.service'; // Import UniqueDigitService
 
 describe('UserController', () => {
   let controller: UserController;
   let service: UserService;
 
-  const mockUserModel = {};  // Add any methods if needed for the tests
+  const mockUserModel = {};  // Mock User model if necessary
+  const mockUniqueDigitService = {};  // Mock UniqueDigitService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
+      
       providers: [
         UserService,
         {
           provide: getModelToken(User.name),
           useValue: mockUserModel,
+        },
+        {
+          provide: UniqueDigitService,
+          useValue: mockUniqueDigitService,  // Mock UniqueDigitService
         },
       ],
     }).compile();
@@ -46,6 +53,8 @@ describe('UserService', () => {
     findByIdAndUpdate: jest.fn(),
   };
 
+  const mockUniqueDigitService = {};  // Mock UniqueDigitService
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -53,6 +62,10 @@ describe('UserService', () => {
         {
           provide: getModelToken(User.name),
           useValue: mockUserModel,
+        },
+        {
+          provide: UniqueDigitService,
+          useValue: mockUniqueDigitService,  // Mock UniqueDigitService
         },
       ],
     }).compile();

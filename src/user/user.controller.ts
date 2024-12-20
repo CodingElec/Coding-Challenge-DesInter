@@ -21,10 +21,12 @@ export class UserController {
       return this.userService.addCalculation(id, calculationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @Post(':id')
+  findOne(@Param('id') id: string, @Body() body: { privateKey?: string }) {
+    const { privateKey } = body;
+    return this.userService.findOne(id, privateKey);
   }
+  
 
   @Get(':id/calculations')
   findCalculations(@Param('id') id: string) {
@@ -34,6 +36,13 @@ export class UserController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
+  }
+
+  @Patch(':id/encrypt')
+  async encrypt(
+    @Param('id') id: string,
+      ) {
+   return this.userService.encryptUser(id);
   }
 
   @Delete(':id')
